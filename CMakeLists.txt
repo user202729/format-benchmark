@@ -113,6 +113,10 @@ endif ()
 
 add_executable(tinyformat_speed_test src/tinyformat-test.cc)
 target_link_libraries(tinyformat_speed_test fmt ${EXTRA_LIBS})
+set_target_properties(tinyformat_speed_test PROPERTIES
+  CXX_STANDARD 20
+  CXX_STANDARD_REQUIRED ON
+  CXX_EXTENSIONS OFF)
 if (HAVE_PROFILER)
   target_link_libraries(tinyformat_speed_test ${PROFILER_LIB})
   set(PROFILE_DEFS ";FMT_PROFILE")
@@ -161,6 +165,12 @@ else()
 	COMMAND @time -p ./tinyformat_speed_test format > /dev/null
 	COMMAND @echo fmt::compile timings:
 	COMMAND @time -p ./tinyformat_speed_test fmt::compile > /dev/null
+  COMMAND @echo fmt::format_to-string timings:
+  COMMAND @time -p ./tinyformat_speed_test fmt::format_to-string > /dev/null
+  COMMAND @echo fmt::format_to-memory_buffer timings:
+  COMMAND @time -p ./tinyformat_speed_test fmt::format_to-memory_buffer > /dev/null
+  COMMAND @echo fmt::format_to-vector_char timings:
+  COMMAND @time -p ./tinyformat_speed_test fmt::format_to-vector_char > /dev/null
 	COMMAND @echo tinyformat timings:
 	COMMAND @time -p ./tinyformat_speed_test tinyformat > /dev/null
 	COMMAND @echo boost timings:

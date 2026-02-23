@@ -10,6 +10,7 @@ namespace std { class type_info; }
 #include <cstddef>
 
 #ifdef SPEED_TEST
+#include <iterator>
 #ifdef HAVE_FORMAT
 # include "fmt/format.h"
 # include "fmt/compile.h"
@@ -26,6 +27,9 @@ namespace std { class type_info; }
 #include "stb_sprintf.h"
 #include <iomanip>
 #include <stdio.h>
+#include <string>
+#include <string_view>
+#include <vector>
 #endif
 
 // Throw instead of abort() so we can test error conditions.
@@ -128,6 +132,30 @@ void speedTest(const std::string& which)
             *finished_at = '\0';
             std::puts(buf);
         }
+    }
+    else if(which == "fmt::format_to-string" ||
+            which == "fmt::format_to-memory_buffer" ||
+            which == "fmt::format_to-vector_char")
+    {
+        const int x = 42;
+        const double y = 3.14159;
+        const std::string s(3000, 'x');
+        const auto bench = [&](auto&& make) {
+            std::string out;
+            for(long i = 0; i < maxIter; ++i)
+            {
+                auto b = make();
+                fmt::format_to(std::back_inserter(b), "{} {} {}", x, y, s);
+                out.assign(b.data(), b.size());
+            }
+            std::cout << out << "\n";
+        };
+        if(which == "fmt::format_to-string")
+            bench([] { return std::string(); });
+        else if(which == "fmt::format_to-memory_buffer")
+            bench([] { return fmt::memory_buffer(); });
+        else
+            bench([] { return std::vector<char>(); });
     }
 #endif
     else if(which == "folly")
